@@ -72,21 +72,36 @@ def ray_download(downloader, shards):
     status, row = downloader(shards)
     return status, row
 
+def ray_distributor_batched(processes_count, downloader, reader, subjob_size, max_shard_retry, max_jobs):
+    max_count = max_jobs
+    ret = []
+    count = 0
+    def batcher(iterable, batch_size):
+        iterator = iter(iterable)
+        for first in iterator:
+            yield list(chain([first], islice(iterator, batch_size - 2)))
+    for tasks in batcher(reader, subjob_size):
+        ret = []
+        count += len(tasks)
+        for task in tasks:
+            ret.append(ray_download.remote(downloader, task))
+    
+        if count > max_count:
+            break
+    ray.get(ret)
+
+
 def ray_distributor(processes_count, downloader, reader, subjob_size, max_shard_retry, max_jobs):
     max_count = max_jobs
     ret = []
     count = 0
     for task in reader: 
         count += 1
-        print(f"running Task name = {task}")
         ret.append(ray_download.remote(downloader, task))
         if count > max_count:
             break
     ray.get(ret)
     
-
-
-
 @contextmanager
 def _spark_session(processes_count: int):
     """Create and close a spark session if none exist"""
