@@ -60,7 +60,6 @@ def download_image(row, timeout, user_agent_token, disallowed_header_directives)
 
 def download_image_with_retry(row, timeout, retries, user_agent_token, disallowed_header_directives):
     for _ in range(retries + 1):
-        print(f"Downloading image: {row}")
         key, img_stream, err = download_image(row, timeout, user_agent_token, disallowed_header_directives)
         if img_stream is not None:
             return key, img_stream, err
@@ -215,7 +214,6 @@ class Downloader:
                 try:
                     _, sample_data = shard_to_dl[key]
                     str_key = compute_key(key, shard_id, oom_sample_per_shard, self.oom_shard_count)
-                    print(f"Output Key = {str_key}")
                     meta = {
                         # Skip columsn containing a the verification hash and only save the compute hash
                         **{
@@ -242,7 +240,6 @@ class Downloader:
                         status = "failed_to_download"
                         status_dict.increment(error_message)
                         meta["status"] = status
-                        print(f"Writing to key...{str_key}")
                         sample_writer.write(
                             None,
                             str_key,
