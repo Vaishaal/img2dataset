@@ -111,8 +111,7 @@ class WebDatasetSampleWriter:
         self.shard_id = shard_id
         fs, output_path = fsspec.core.url_to_fs(output_folder)
         self.tar_fd = fs.open(f"{output_path}/{shard_name}.tar", "wb")
-        print(f"Output tar path = self.tar_fd")
-        self.tarwriter = wds.TarWriter(self.tar_fd)
+        print(f"Output tar path = {output_path}/{shard_name}.tar")
         self.save_caption = save_caption
         self.buffered_parquet_writer = BufferedParquetWriter(output_folder + "/" + shard_name + ".parquet", schema, 100)
         self.encode_format = encode_format
