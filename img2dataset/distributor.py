@@ -78,6 +78,7 @@ def ray_distributor(processes_count, downloader, reader, subjob_size, max_shard_
     count = 0
     for task in reader: 
         count += 1
+        print(f"running Task name = {task}")
         ret.append(ray_download.remote(downloader, task))
         if count > max_count:
             break
