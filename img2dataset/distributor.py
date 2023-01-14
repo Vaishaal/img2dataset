@@ -5,6 +5,7 @@ from multiprocessing import get_context
 from itertools import islice, chain
 
 from tqdm import tqdm
+import ray
 
 
 def retrier(runf, failed_shards, max_shard_retry):
@@ -64,6 +65,15 @@ def pyspark_distributor(processes_count, downloader, reader, subjob_size, max_sh
         failed_shards = run(reader)
 
         retrier(run, failed_shards, max_shard_retry)
+
+@ray.remote
+def ray_download(downloader, shards):
+    status, row = downloader(shards)
+    return status, row
+
+def ray_distributor(processes_count, downloader, reader, subjob_size, max_shard_retry):
+    for task in reader: 
+        ray_download.remote(downloader, task)
 
 
 @contextmanager
