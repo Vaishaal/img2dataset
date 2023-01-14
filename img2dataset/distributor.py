@@ -73,7 +73,7 @@ def ray_download(downloader, shards):
     return status, row
 
 def ray_distributor(processes_count, downloader, reader, subjob_size, max_shard_retry, max_jobs):
-    max_count = 0
+    max_count = max_jobs
     ret = []
     count = 0
     for task in reader: 
