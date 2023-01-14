@@ -215,6 +215,7 @@ class Downloader:
                 try:
                     _, sample_data = shard_to_dl[key]
                     str_key = compute_key(key, shard_id, oom_sample_per_shard, self.oom_shard_count)
+                    print(f"Output Key = {str_key}")
                     meta = {
                         # Skip columsn containing a the verification hash and only save the compute hash
                         **{
@@ -241,6 +242,7 @@ class Downloader:
                         status = "failed_to_download"
                         status_dict.increment(error_message)
                         meta["status"] = status
+                        print(f"Writing to key...{str_key}")
                         sample_writer.write(
                             None,
                             str_key,
