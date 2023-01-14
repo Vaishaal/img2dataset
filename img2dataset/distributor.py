@@ -74,6 +74,7 @@ def ray_download(downloader, shards):
 def ray_distributor(processes_count, downloader, reader, subjob_size, max_shard_retry, max_jobs):
     max_count = 0
     ret = []
+    count = 0
     for task in reader: 
         count += 1
         ret.append(ray_download.remote(downloader, task))
