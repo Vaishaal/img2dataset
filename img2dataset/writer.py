@@ -9,6 +9,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import webdataset as wds
 
+BUFFER_SIZE = 200000000
 
 class BufferedParquetWriter:
     """Write samples to parquet files incrementally with a buffer"""
@@ -19,7 +20,7 @@ class BufferedParquetWriter:
         self._initiatlize_buffer()
         fs, output_path = fsspec.core.url_to_fs(output_file)
         # testing for S3 
-        self.output_fd = fs.open(output_path, "wb", blocksize=200000000)
+        self.output_fd = fs.open(output_path, "wb")
         self.parquet_writer = pq.ParquetWriter(self.output_fd, schema)
 
     def _initiatlize_buffer(self):
@@ -110,11 +111,11 @@ class WebDatasetSampleWriter:
         )
         self.shard_id = shard_id
         fs, output_path = fsspec.core.url_to_fs(output_folder)
-        self.tar_fd = fs.open(f"{output_path}/{shard_name}.tar", "wb")
+        self.tar_fd = fs.open(f"{output_path}/{shard_name}.tar", "wb",  blocksize=BUFFER_SIZE)
         #print(f"Output tar path = {output_path}/{shard_name}.tar")
         self.tarwriter = wds.TarWriter(self.tar_fd)
         self.save_caption = save_caption
-        self.buffered_parquet_writer = BufferedParquetWriter(output_folder + "/" + shard_name + ".parquet", schema, 100)
+        self.buffered_parquet_writer = BufferedParquetWriter(output_folder + "/" + shard_name + ".parquet", schema, BUFFER_SIZE)
         self.encode_format = encode_format
 
     def write(self, img_str, key, caption, meta):
